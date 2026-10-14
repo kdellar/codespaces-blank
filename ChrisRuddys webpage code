@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which source do I need?</title>
+<!--
+  EDITING NOTES FOR LIBRARY / LEARNING DESIGN STAFF
+  - Everything is in this one file: no external fonts, scripts or images.
+  - Cards are plain HTML. To add or change a link, edit the <a> or <span class="nolink"> inside "Where to look".
+  - Items marked class="nolink" have no URL yet (LibrarySearch, industry databases, Law and Justice guide).
+    Replace e.g. <span class="nolink">LibrarySearch</span> with <a href="https://your-library-url">LibrarySearch</a>.
+  - Each card has data-needs="..." which controls which "I need..." button shows it.
+  - If JavaScript is blocked (some Canvas editors strip it), all cards simply stay visible.
+-->
+<style>
+  :root {
+    --ink: #1b2a35;
+    --ink-soft: #46586a;
+    --paper: #ffffff;
+    --mist: #f1f5f8;
+    --line: #c9d5de;
+    --teal: #0a6a73;
+    --teal-dark: #07505a;
+    --sun: #f6c93b;
+    --warn-bg: #fff6d9;
+    --warn-line: #b88a00;
+    --focus: #1a54d9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #eaf1f6;
+      --ink-soft: #b4c4d1;
+      --paper: #16222b;
+      --mist: #1d2c37;
+      --line: #3a4f5e;
+      --teal: #6fd0d8;
+      --teal-dark: #9be3e9;
+      --warn-bg: #3a3112;
+      --warn-line: #e0b93c;
+      --focus: #8fb4ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    padding: 1rem;
+    background: var(--paper);
+    color: var(--ink);
+    font: 1rem/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 62rem; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; line-height: 1.2; margin: 0; }
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.2rem; margin-bottom: .6rem; }
+  h3 { font-size: 1.25rem; }
+  p { margin: 0; }
+  .lead { color: var(--ink-soft); margin-top: .4rem; max-width: 40rem; }
+ 
+  a { color: var(--teal-dark); text-underline-offset: 2px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+ 
+  /* Step 1 */
+  .picker { margin-top: 1.5rem; padding: 1.1rem 1.2rem 1.25rem; background: var(--mist); border-radius: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .chip {
+    font: inherit; font-weight: 600; color: var(--ink);
+    background: var(--paper); border: 2px solid var(--teal); border-radius: 999px;
+    padding: .5rem 1rem; min-height: 44px; cursor: pointer;
+  }
+  .chip:hover { background: var(--paper); border-color: var(--teal-dark); box-shadow: 0 0 0 2px var(--line); }
+  .chip[aria-pressed="true"] { background: var(--sun); border-color: var(--ink); color: #1b2a35; }
+  .chip[aria-pressed="true"]::before { content: "\2713\00a0"; }
+  .showall {
+    font: inherit; background: none; border: 0; color: var(--teal-dark);
+    text-decoration: underline; cursor: pointer; padding: .6rem .3rem; min-height: 44px; margin-top: .25rem;
+  }
+  #status { margin-top: 1rem; font-weight: 600; }
+ 
+  /* Cards */
+  .results { display: grid; gap: 1rem; margin-top: 1rem; }
+  .card {
+    border: 1px solid var(--line); border-left: 8px solid var(--teal);
+    border-radius: 6px; background: var(--paper); padding: 1rem 1.2rem 1.1rem;
+  }
+  .card[hidden] { display: none; }
+  .card header { display: flex; gap: .8rem; align-items: center; }
+  .icon {
+    flex: none; width: 3rem; height: 3rem; border-radius: 8px; background: var(--mist);
+    display: grid; place-items: center; font-size: 1.6rem;
+  }
+  .example { color: var(--ink-soft); font-size: .95rem; }
+  .example strong { color: var(--ink); }
+  .where { margin-top: .9rem; padding: .7rem .9rem; background: var(--mist); border-radius: 6px; }
+  .where h4 { margin: 0 0 .3rem; font-size: 1rem; }
+  .where ul { margin: 0; padding-left: 1.2rem; }
+  .nolink { font-weight: 600; }
+  details { margin-top: .8rem; }
+  summary {
+    cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center;
+    color: var(--teal-dark);
+  }
+  details ul { margin: .2rem 0 0; padding-left: 1.2rem; }
+  details li { margin-bottom: .3rem; max-width: 46rem; }
+  .check {
+    margin-top: .8rem; padding: .6rem .9rem; background: var(--warn-bg);
+    border-left: 4px solid var(--warn-line); border-radius: 4px; font-size: .95rem;
+  }
+  .note { margin-top: 1.5rem; font-size: .9rem; color: var(--ink-soft); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+ 
+  @media (max-width: 520px) {
+    body { padding: .6rem; }
+    h1 { font-size: 1.45rem; }
+    .card { padding: .9rem; }
+  }
+  @media (forced-colors: active) {
+    .chip[aria-pressed="true"] { outline: 3px solid Highlight; }
+  }
+</style>
+</head>
+<body>
+<main class="wrap">
+ 
+  <h1>Which source do I need?</h1>
+<p class="lead">Start with what you are trying to find. We will show you the kind of source to look for and where to find it.</p>
+ 
+  <section class="picker" aria-labelledby="pick-h">
+<h2 id="pick-h">I need&hellip;</h2>
+<div class="chips" role="group" aria-labelledby="pick-h">
+<button type="button" class="chip" data-need="scholarly" aria-pressed="false">Scholarly research</button>
+<button type="button" class="chip" data-need="background" aria-pressed="false">Background information</button>
+<button type="button" class="chip" data-need="opinion" aria-pressed="false">Opinion or public views</button>
+<button type="button" class="chip" data-need="primary" aria-pressed="false">A primary source</button>
+<button type="button" class="chip" data-need="data" aria-pressed="false">Statistics or data</button>
+<button type="button" class="chip" data-need="images" aria-pressed="false">Images or artwork</button>
+<button type="button" class="chip" data-need="news" aria-pressed="false">News and current events</button>
+<button type="button" class="chip" data-need="course" aria-pressed="false">My course content</button>
+</div>
+<button type="button" class="showall" id="showall">Show all sources</button>
+</section>
+ 
+  <p id="status" role="status" aria-live="polite"></p>
+ 
+  <section class="results" aria-label="Sources">
+ 
+    <article class="card" data-needs="scholarly">
+<header>
+<span class="icon" aria-hidden="true">&#128240;</span>
+<div>
+<h3>Scholarly sources</h3>
+<p class="example"><strong>Example:</strong> a peer reviewed journal article &middot; <strong>Good for:</strong> scholarly and academic research</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li><a href="https://www.rmit.edu.au/library">LibrarySearch</a></li>
+<li>Library databases</li>
+<li><a href="https://scholar.google.com/">Google Scholar</a></li>
+</ul>
+</div>
+<details>
+<summary>About this source</summary>
+<ul>
+<li>Journal articles provide current information on specific topics.</li>
+<li>Academic journal articles contain scholarly research and analysis.</li>
+<li>Trade journals and industry magazines are written by practitioners. They focus on working in the profession and give industry trends and news.</li>
+</ul>
+</details>
+</article>
+ 
+    <article class="card" data-needs="background">
+<header>
+<span class="icon" aria-hidden="true">&#128214;</span>
+<div>
+<h3>Books</h3>
+<p class="example"><strong>Example:</strong> a textbook &middot; <strong>Good for:</strong> background information</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li><a href="https://www.rmit.edu.au/library">LibrarySearch</a></li>
+<li>Print collection</li>
+</ul>
+</div>
+<details>
+<summary>About this source</summary>
+<ul>
+<li>Books give background and in-depth information.</li>
+<li>Textbooks and academic books are a great place to start your research.</li>
+<li>They can give an overview of the topic, cover key concepts and theories, and include detailed information.</li>
+</ul>
+</details>
+</article>
+ 
+    <article class="card" data-needs="opinion">
+<header>
+<span class="icon" aria-hidden="true">&#128187;</span>
+<div>
+<h3>Websites, social media and AI-generated content</h3>
+<p class="example"><strong>Example:</strong> social media or a blog &middot; <strong>Good for:</strong> opinion, recent news and events</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li>Online, using a web browser</li>
+</ul>
+</div>
+<details>
+<summary>About this source</summary>
+<ul>
+<li>Websites and social media can be useful sources of information.</li>
+<li>AI tools can generate text, images, code and other content based on your specific prompt.</li>
+</ul>
+</details>
+<p class="check"><strong>Check before you use it:</strong> evaluate these sources carefully and verify that the information is correct and up to date.</p>
+</article>
+ 
+    <article class="card" data-needs="primary">
+<header>
+<span class="icon" aria-hidden="true">&#9878;&#65039;</span>
+<div>
+<h3>Primary sources</h3>
+<p class="example"><strong>Example:</strong> legislation &middot; <strong>Good for:</strong> original, official material</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li>A legal database or website like <a href="https://www.austlii.edu.au/">Austlii</a></li>
+<li><a href="https://rmit.libguides.com/law-justice">Law and Justice Subject Guide</a></li>
+</ul>
+</div>
+<details>
+<summary>About this source</summary>
+<ul>
+<li>Use when you need direct, original evidence for your research. </li>
+<li>Examples include survey results, interviews, historical documents, artworks, experiments, laws, or raw data</li>
+</ul>
+</details>
+</article>
+ 
+    <article class="card" data-needs="data">
+<header>
+<span class="icon" aria-hidden="true">&#128202;</span>
+<div>
+<h3>Statistics and data</h3>
+<p class="example"><strong>Example:</strong> industry forecasting data &middot; <strong>Good for:</strong> numbers and trends</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li><a href="https://rmit.libguides.com/company-industry">Industry and company databases</a></li>
+<li><a href="https://www.abs.gov.au/">Australian Bureau of Statistics</a></li>
+</ul>
+</div>
+</article>
+ 
+    <article class="card" data-needs="images">
+<header>
+<span class="icon" aria-hidden="true">&#128444;&#65039;</span>
+<div>
+<h3>Images and artwork</h3>
+<p class="example"><strong>Example:</strong> photos &middot; <strong>Good for:</strong> visual material</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li>Database: <a href="https://www.jstor.org/">JSTOR</a></li>
+<li>Websites, such as museums and galleries</li>
+<li>Print collection</li>
+</ul>
+</div>
+<details>
+<summary>About this source</summary>
+<ul>
+<li>Images may come from a database, website, book or other publication.</li>
+</ul>
+</details>
+<p class="check"><strong>Check before you use it:</strong> read the copyright information before using an image.</p>
+</article>
+ 
+    <article class="card" data-needs="news">
+<header>
+<span class="icon" aria-hidden="true">&#128211;</span>
+<div>
+<h3>Magazines and newspapers</h3>
+<p class="example"><strong>Good for:</strong> short, news-style articles</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li><a href="https://rmit.primo.exlibrisgroup.com/permalink/61RMIT_INST/1kg4k2u/alma9921587307101341">Flipster</a></li>
+          <li><a href="https://rmit.libguides.com/news">News and newspapers subject guide</a></li>
+</ul>
+</div>
+<details>
+<summary>About this source</summary>
+<ul>
+<li>Newspapers and magazines give short news articles.</li>
+<li>Popular magazines are not always written by experts. They often contain advertisements, graphics and few references.</li>
+</ul>
+</details>
+</article>
+ 
+    <article class="card" data-needs="course">
+<header>
+<span class="icon" aria-hidden="true">&#127979;</span>
+<div>
+<h3>Course materials</h3>
+<p class="example"><strong>Good for:</strong> content your lecturer has chosen for your course</p>
+</div>
+</header>
+<div class="where">
+<h4>Where to look</h4>
+<ul>
+<li>Your course on Canvas</li>
+</ul>
+</div>
+<details>
+<summary>About this source</summary>
+<ul>
+<li>Course materials are a valuable source of information.</li>
+<li>They may include lecture materials, recordings and slides from your course on Canvas.</li>
+</ul>
+</details>
+</article>
+ 
+  </section>
+ 
+  <p class="note">Not sure which one to choose? Ask a librarian.</p>
+</main>
+ 
+<script>
+(function () {
+  var chips = document.querySelectorAll('.chip');
+  var cards = document.querySelectorAll('.card');
+  var status = document.getElementById('status');
+  var active = null;
+ 
+  function render() {
+    var shown = 0;
+    cards.forEach(function (card) {
+      var needs = card.getAttribute('data-needs').split(' ');
+      var match = !active || needs.indexOf(active) !== -1;
+      card.hidden = !match;
+      if (match) shown++;
+    });
+    chips.forEach(function (c) {
+      c.setAttribute('aria-pressed', c.getAttribute('data-need') === active ? 'true' : 'false');
+    });
+    if (active) {
+      var label = document.querySelector('.chip[data-need="' + active + '"]').textContent;
+      status.textContent = 'Showing ' + shown + ' of ' + cards.length + ' sources for: ' + label + '.';
+    } else {
+      status.textContent = 'Showing all ' + cards.length + ' sources.';
+    }
+  }
+ 
+  chips.forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var need = chip.getAttribute('data-need');
+      active = (active === need) ? null : need;
+      render();
+    });
+  });
+  document.getElementById('showall').addEventListener('click', function () {
+    active = null;
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
